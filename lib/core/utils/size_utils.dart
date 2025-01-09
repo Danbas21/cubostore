@@ -11,10 +11,35 @@ extension ResponsiveExtension on num {
 }
 
 extension FormatExtension on double {
-  String get f => this;
+  double toDoubleValue({int fractionDigits = 2}) {
+    return double.parse(this.toStringAsFixed(fractionDigits));
+  }
+
+  double isNonZero({num defaultValue = 0.0}) {
+    return this > 0 ? this : defaultValue.toDouble();
+  }
 }
 
 enum DeviceType { Mobile, Tablet, Desktop }
+
+typedef ResponsiveBuild = Widget Function(
+    BuildContext context, Orientation orientation, DeviceType deviceType);
+
+class Sizer extends StatelessWidget {
+  const Sizer({Key? key, required this.builder}) : super(key: key);
+
+  final ResponsiveBuild builder;
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return OrientationBuilder(builder: (context, orientation) {
+        SizeUtils.setScreenSize(
+            constraints: constraints, currentOrientation: orientation);
+        return builder(context, orientation, SizeUtils.deviceType);
+      });
+    });
+  }
+}
 
 class SizeUtils {
   static late BoxConstraints boxConstraints;
