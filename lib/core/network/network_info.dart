@@ -1,78 +1,133 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:cubostore/main.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final GlobalKey<ScaffoldMessengerState> globalMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
+part 'network_info.g.dart';
 
-abstract class NetworkInfoI {
-  Future<bool> isConnected();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  Future<ConnectivityResult> get connectivityResult;
-
-  Stream<ConnectivityResult> get onConnectivityChanged;
+// 1. Provider para la conectividad
+@Riverpod(keepAlive: true)
+Connectivity connectivity(ConnectivityRef ref) {
+  return Connectivity();
 }
 
-class NetworkInfo implements NetworkInfoI {
-  Connectivity connectivity;
-
-  static final NetworkInfo _networkInfo = NetworkInfo._internal(Connectivity());
-
-  factory NetworkInfo() => _networkInfo;
-
-  NetworkInfo._internal(this.connectivity) {
-    connectivity = connectivity;
+// 2. Provider para monitorear la conexión
+@riverpod
+class NetworkNotifier extends _$NetworkNotifier {
+  @override
+  Stream<ConnectivityResult> build() {
+    final connectivity = ref.watch(connectivityProvider);
+    return connectivity.onConnectivityChanged.map((results) => results.first);
   }
 
-  @override
   Future<bool> isConnected() async {
+    final connectivity = ref.read(connectivityProvider);
     final result = await connectivity.checkConnectivity();
-
-    if (result != ConnectivityResult.none) {
-      return false;
-    }
-    return true;
+    return result != ConnectivityResult.none;
   }
-
-  @override
-  Future<ConnectivityResult> get connectivityResult async {
-    final results = await connectivity.checkConnectivity();
-    return results.first;
-  }
-
-  @override
-  Stream<ConnectivityResult> get onConnectivityChanged =>
-      connectivity.onConnectivityChanged.map((results) => results.first);
 }
 
-abstract class Failure {}
+// 3. Provider para manejar errores
+@riverpod
+class ErrorHandlerNotifier extends _$ErrorHandlerNotifier {
+  @override
+  void build() {}
 
-class ServerFailure extends Failure {}
-
-class CacheFailure extends Failure {}
-
-class NetworkFailure extends Failure {}
-
-class ServerException implements Exception {}
-
-class CacheException implements Exception {}
-
-class NetworkException implements Exception {}
-
-class NoInternetException implements Exception {
-  late String _message;
-
-  NoInternetException([String message = 'No Internet Connection']) {
-    if (globalMessengerKey.currentState != null) {
-      globalMessengerKey.currentState!.showSnackBar(SnackBar(
-        content: Text(message),
-      ));
+  void showError(String message) {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     }
-    this._message = message;
   }
+}
+
+// 4. Errores tipados
+sealed class AppError {
+  final String message;
+  const AppError(this.message);
+}
+
+class NetworkError extends AppError {
+  const NetworkError([String message = 'No hay conexión a internet'])
+      : super(message);
+}
+
+class ServerError extends AppError {
+  const ServerError([String message = 'Error del servidor']) : super(message);
+}
+
+// 5. Widgets de estado de conexión
+class NoConnectionWidget extends StatelessWidget {
+  const NoConnectionWidget({super.key});
 
   @override
-  String toString() {
-    return _message;
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.signal_wifi_off, size: 48),
+          SizedBox(height: 16),
+          Text('Sin conexión a Internet'),
+        ],
+      ),
+    );
+  }
+}
+
+class ConnectedWidget extends StatelessWidget {
+  const ConnectedWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.wifi, size: 48),
+          SizedBox(height: 16),
+          Text('Conectado'),
+        ],
+      ),
+    );
+  }
+}
+
+// 6. Widget principal
+class NetworkStatusWidget extends ConsumerWidget {
+  const NetworkStatusWidget({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final connectivityStream = ref.watch(networkNotifierProvider);
+
+    return connectivityStream.when(
+      data: (connectivity) {
+        if (connectivity == ConnectivityResult.none) {
+          return const NoConnectionWidget();
+        }
+        return const ConnectedWidget();
+      },
+      loading: () => const CircularProgressIndicator(),
+      error: (error, stack) => Text('Error: $error'),
+    );
+  }
+
+  Future<void> fetchData(WidgetRef ref) async {
+    try {
+      if (!await ref.read(networkNotifierProvider.notifier).isConnected()) {
+        ref
+            .read(errorHandlerNotifierProvider.notifier)
+            .showError('No hay conexión');
+        return;
+      }
+      // Aquí iría tu lógica de fetch
+    } on AppError catch (e) {
+      ref.read(errorHandlerNotifierProvider.notifier).showError(e.message);
+    }
   }
 }
