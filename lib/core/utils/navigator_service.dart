@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:riverpod/riverpod.dart';
 
-class NavigatorService {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-  Future<dynamic> pushNamed(String routeName, {dynamic arguments}) async {
-    return navigatorKey.currentState
-        ?.pushNamed(routeName, arguments: arguments);
-  }
+part 'navigator_service.g.dart';
 
-  Future<dynamic> pushNamedAndRemoveUntil(String routeName,
-      {bool routePredicate = false, dynamic arguments}) async {
-    return navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        routeName, (route) => routePredicate,
-        arguments: arguments);
-  }
+// 1. Definimos los providers
+@riverpod
+GlobalKey<NavigatorState> navigatorKey(Ref ref) {
+  return GlobalKey<NavigatorState>();
+}
 
-  void goBack() {
-    return navigatorKey.currentState?.pop();
-  }
-
-  Future<dynamic> popandPushNamed(String routeName, {dynamic arguments}) async {
-    return navigatorKey.currentState
-        ?.popAndPushNamed(routeName, arguments: arguments);
-  }
+@riverpod
+GoRouter router(Ref ref) {
+  navigatorKeY:
+  ref.watch(navigatorKeyProvider);
+  return GoRouter(
+    routes: [
+      // tus rutas aquí
+    ],
+  );
 }
