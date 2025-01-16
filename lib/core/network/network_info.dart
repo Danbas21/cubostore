@@ -9,7 +9,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // 1. Provider para la conectividad
 @Riverpod(keepAlive: true)
-Connectivity connectivity(ConnectivityRef ref) {
+Connectivity connectivity(Ref ref) {
   return Connectivity();
 }
 
@@ -52,12 +52,11 @@ sealed class AppError {
 }
 
 class NetworkError extends AppError {
-  const NetworkError([String message = 'No hay conexión a internet'])
-      : super(message);
+  const NetworkError([super.message = 'No hay conexión a internet']);
 }
 
 class ServerError extends AppError {
-  const ServerError([String message = 'Error del servidor']) : super(message);
+  const ServerError([super.message = 'Error del servidor']);
 }
 
 // 5. Widgets de estado de conexión

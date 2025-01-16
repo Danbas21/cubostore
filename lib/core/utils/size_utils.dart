@@ -1,46 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'size_utils.g.dart';
+
+// Primero definimos nuestro enum
+enum DeviceType { mobile, tablet, desktop }
+
+// Constantes de diseño
 const num figma_design_width = 375;
 const num figma_design_height = 812;
-const num figma_design_status_bar = 0;
 
-extension ResponsiveExtension on num {
-  double get _width => SizeUtils.width;
-  double get _height => ((this * _width) / figma_design_width);
-  double get fSize => ((this * _width) / figma_design_width);
-}
-
-extension FormatExtension on double {
-  double toDoubleValue({int fractionDigits = 2}) {
-    return double.parse(this.toStringAsFixed(fractionDigits));
-  }
-
-  double isNonZero({num defaultValue = 0.0}) {
-    return this > 0 ? this : defaultValue.toDouble();
-  }
-}
-
-enum DeviceType { Mobile, Tablet, Desktop }
-
-typedef ResponsiveBuild = Widget Function(
-    BuildContext context, Orientation orientation, DeviceType deviceType);
-
-class Sizer extends StatelessWidget {
-  const Sizer({Key? key, required this.builder}) : super(key: key);
-
-  final ResponsiveBuild builder;
+// Provider para el tamaño de pantalla
+@riverpod
+class ScreenSize extends _$ScreenSize {
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return OrientationBuilder(builder: (context, orientation) {
-        SizeUtils.setScreenSize(
-            constraints: constraints, currentOrientation: orientation);
-        return builder(context, orientation, SizeUtils.deviceType);
-      });
-    });
+  (double width, double height) build() {
+    return (SizeUtils.width, SizeUtils.height);
   }
 }
 
+// Provider para la configuración del dispositivo
+@riverpod
+class DeviceConfig extends _$DeviceConfig {
+  @override
+  (DeviceType type, Orientation orientation) build() {
+    final screenSize = ref.watch(screenSizeProvider);
+    final width = screenSize.$1;
+
+    // Determinamos el tipo de dispositivo basado en el ancho
+    final deviceType = width < 600
+        ? DeviceType.mobile
+        : width < 900
+            ? DeviceType.tablet
+            : DeviceType.desktop;
+
+    return (deviceType, SizeUtils.orientation);
+  }
+}
+
+// Widget constructor responsivo
+class ResponsiveBuilder extends ConsumerWidget {
+  const ResponsiveBuilder({required this.builder});
+
+  final Widget Function(
+          BuildContext context, Orientation orientation, DeviceType deviceType)
+      builder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final deviceConfig = ref.watch(deviceConfigProvider);
+
+    return builder(
+        context,
+        deviceConfig.$2, // orientation
+        deviceConfig.$1 // deviceType
+        );
+  }
+}
+
+// Utilidades de tamaño
 class SizeUtils {
   static late BoxConstraints boxConstraints;
   static late Orientation orientation;
@@ -61,6 +80,23 @@ class SizeUtils {
       width = boxConstraints.maxHeight;
       height = boxConstraints.maxWidth;
     }
-    deviceType = DeviceType.Mobile;
+    deviceType = DeviceType.mobile;
+  }
+}
+
+// Extensiones útiles
+extension ResponsiveExtension on num {
+  double get _width => SizeUtils.width;
+  double get _height => ((this * _width) / figma_design_width);
+  double get fSize => ((this * _width) / figma_design_width);
+}
+
+extension FormatExtension on double {
+  double toDoubleValue({int fractionDigits = 2}) {
+    return double.parse(toStringAsFixed(fractionDigits));
+  }
+
+  double isNonZero({num defaultValue = 0.0}) {
+    return this > 0 ? this : defaultValue.toDouble();
   }
 }
