@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:ui';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +9,7 @@ Future<SharedPreferences> sharedPreferences(Ref ref) async {
   return await SharedPreferences.getInstance();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ThemePreferencesNotifier extends _$ThemePreferencesNotifier {
   @override
   Future<String> build() async {
