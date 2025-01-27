@@ -14,27 +14,35 @@ class ThemePreferencesNotifier extends _$ThemePreferencesNotifier {
   @override
   Future<String> build() async {
     final prefs = await ref.watch(sharedPreferencesProvider.future);
-
-    return prefs.getString('themeData') ?? 'primary';
+    // Cambiamos el valor por defecto a 'lightCode'
+    return prefs.getString('themeData') ?? 'lightCode';
   }
 
-  void setTheme(String theme) async {
+  Future<void> setTheme(String theme) async {
     final prefs = await ref.read(sharedPreferencesProvider.future);
+
+    // Validamos que el tema sea válido
+    if (theme != 'lightCode' && theme != 'darkCode') {
+      theme = 'lightCode'; // Valor por defecto si el tema no es válido
+    }
 
     await prefs.setString('themeData', theme);
 
-    ref.refresh(
-      sharedPreferencesProvider,
-    );
+    // Actualizamos el estado
+    state = AsyncValue.data(theme);
   }
 
-  void removeTheme() async {
-    final prefs = await ref.read(sharedPreferencesProvider.future);
+  Future<void> toggleTheme() async {
+    final currentTheme = await future;
+    final newTheme = currentTheme == 'lightCode' ? 'darkCode' : 'lightCode';
+    await setTheme(newTheme);
+  }
 
+  Future<void> removeTheme() async {
+    final prefs = await ref.read(sharedPreferencesProvider.future);
     await prefs.remove('themeData');
 
-    ref.refresh(
-      sharedPreferencesProvider,
-    );
+    // Actualizamos el estado al valor por defecto
+    state = const AsyncValue.data('lightCode');
   }
 }

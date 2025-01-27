@@ -1,16 +1,29 @@
 import 'package:cubostore/core/app_export.dart';
 import 'package:cubostore/core/utils/pref_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:riverpod/riverpod.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'theme_helper.g.dart';
 
+@riverpod
+String themeProvider(Ref ref) {
+  return ref.watch(themePreferencesNotifierProvider).when(
+        data: (theme) => theme,
+        loading: () => 'primary',
+        error: (error, stack) => 'primary',
+      );
+}
+
+LightCodeColors get appTheme => LightCodeColors();
+
 @Riverpod(keepAlive: true)
 class ThemeHelper extends _$ThemeHelper {
   @override
   ThemeData build() {
-    return _getThemeData('lightCode');
+    final appTheme = ref.watch(themeProviderProvider);
+    return _getThemeData(appTheme);
   }
 
   final Map<String, LightCodeColors> _supportedCustomColors = {
@@ -19,6 +32,7 @@ class ThemeHelper extends _$ThemeHelper {
 
   final Map<String, ColorScheme> _supportedColorSchemes = {
     'lightCode': ColorSchemes.lightCodeColorScheme,
+    'darkCode': ColorSchemes.darkCodeColorScheme,
   };
 
   LightCodeColors _getThemeColors(String theme) {
@@ -29,10 +43,12 @@ class ThemeHelper extends _$ThemeHelper {
     final colorScheme =
         _supportedColorSchemes[theme] ?? ColorSchemes.lightCodeColorScheme;
     final themeColors = _getThemeColors(theme);
+
     return ThemeData(
       visualDensity: VisualDensity.standard,
+      brightness: theme == 'darkCode' ? Brightness.dark : Brightness.light,
       colorScheme: colorScheme,
-      textTheme: TextThemes.getTextTheme(colorScheme, themeColors),
+      textTheme: TextThemes.textTheme(colorScheme),
       elevatedButtonTheme: _getElevatedButtonTheme(colorScheme),
       outlinedButtonTheme: _getOutlinedButtonTheme(colorScheme, themeColors),
       radioTheme: _getRadioTheme(colorScheme),
@@ -110,80 +126,82 @@ class ThemeHelper extends _$ThemeHelper {
 }
 
 // Las clases TextThemes, ColorSchemes y LightCodeColors permanecen igual...
-class Text Themes {
-static TextTheme text Theme (ColorScheme colorScheme) => TextTheme(
-bodyLarge: TextStyle(
-color: appTheme.gray800, fontSize: 16.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w400,),
-
-bodyMedium: TextStyle(
-color: appTheme.gray400, 
-fontSize: 14.fSize, 
-fontFamily: 'Inter',
-fontWeight: FontWeight.w400,
-),
-
-bodySmall: TextStyle(
-color: colorscheme.onPrimaryContainer,
-fontSize: 12.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w400,),
-
-headlineLarge: TextStyle(
-color: colorscheme.primary,
-fontSize: 32.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w700,),
-headlineMedium: TextStyle(
-color: colorscheme.primary, fontSize: 28.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w500,),
-
-headlineSmall: TextStyle(
-color: colorscheme.primary, fontSize: 24.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w700,)
-
-labelLarge: TextStyle(
-color: colorscheme.onPrimaryContainer,
-fontSize: 12.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w500,
-),
-
-labelMedium: TextStyle( color: appTheme.whiteA700, 
-fontSize: 11.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w600,)
-
-labelSmall: TextStyle(
-color: appTheme.whiteA700, fontSize: 9.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w600,)
-
-titleLarge: TextStyle(
-color: colorscheme.primary, 
-fontSize: 20.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w700,
-),
-
-titleMedium: TextStyle(
-color: appTheme.whiteA700, 
-fontSize: 16.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w600,),
-
-titleSmall: TextStyle(
-  color: colorScheme.primary,
-fontSize: 14.fSize,
-fontFamily: 'Inter',
-fontWeight: FontWeight.w500,
-),
-);}
-
-
+class TextThemes {
+  static TextTheme textTheme(ColorScheme colorScheme) => TextTheme(
+        bodyLarge: TextStyle(
+          color: appTheme.gray800,
+          fontSize: 16.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+        ),
+        bodyMedium: TextStyle(
+          color: appTheme.gray400,
+          fontSize: 14.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+        ),
+        bodySmall: TextStyle(
+          color: colorScheme.onPrimaryContainer,
+          fontSize: 12.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+        ),
+        headlineLarge: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 32.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+        ),
+        headlineMedium: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 28.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+        ),
+        headlineSmall: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 24.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+        ),
+        labelLarge: TextStyle(
+          color: colorScheme.onPrimaryContainer,
+          fontSize: 12.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+        ),
+        labelMedium: TextStyle(
+          color: appTheme.whiteA700,
+          fontSize: 11.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+        ),
+        labelSmall: TextStyle(
+          color: appTheme.whiteA700,
+          fontSize: 9.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+        ),
+        titleLarge: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 20.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w700,
+        ),
+        titleMedium: TextStyle(
+          color: appTheme.whiteA700,
+          fontSize: 16.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+        ),
+        titleSmall: TextStyle(
+          color: colorScheme.primary,
+          fontSize: 14.fSize,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+        ),
+      );
+}
 
 class ColorSchemes {
   static const lightCodeColorScheme = ColorScheme.light(
@@ -192,6 +210,14 @@ class ColorSchemes {
     errorContainer: Color(0XFFF79410),
     onPrimary: Color(0XFF292D32),
     onPrimaryContainer: Color(0XFFA0A0A0),
+  );
+
+  static const darkCodeColorScheme = ColorScheme.dark(
+    primary: Color.fromARGB(255, 255, 250, 250),
+    primaryContainer: Color.fromARGB(255, 227, 230, 237),
+    errorContainer: Color.fromARGB(255, 106, 63, 7),
+    onPrimary: Color.fromARGB(255, 196, 216, 241),
+    onPrimaryContainer: Color.fromARGB(255, 71, 71, 71),
   );
 }
 
