@@ -17,6 +17,7 @@ String themeProvider(Ref ref) {
 }
 
 LightCodeColors get appTheme => LightCodeColors();
+ThemeData get theme => ThemeHelper()._getThemeData(themeProvider);
 
 @Riverpod(keepAlive: true)
 class ThemeHelper extends _$ThemeHelper {

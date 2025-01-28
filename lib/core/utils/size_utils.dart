@@ -41,7 +41,7 @@ class DeviceConfig extends _$DeviceConfig {
 
 // Widget constructor responsivo
 class ResponsiveBuilder extends ConsumerWidget {
-  const ResponsiveBuilder({required this.builder});
+  const ResponsiveBuilder({super.key, required this.builder});
 
   final Widget Function(
           BuildContext context, Orientation orientation, DeviceType deviceType)
@@ -87,7 +87,7 @@ class SizeUtils {
 // Extensiones útiles
 extension ResponsiveExtension on num {
   double get _width => SizeUtils.width;
-  double get _height => ((this * _width) / figma_design_width);
+  double get h => ((this * _width) / figma_design_width);
   double get fSize => ((this * _width) / figma_design_width);
 }
 
