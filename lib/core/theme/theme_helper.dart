@@ -1,5 +1,4 @@
 import 'package:cubostore/core/app_export.dart';
-import 'package:cubostore/core/utils/pref_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -17,7 +16,7 @@ String themeProvider(Ref ref) {
 }
 
 LightCodeColors get appTheme => LightCodeColors();
-ThemeData get theme => ThemeHelper()._getThemeData(themeProvider);
+ThemeData get theme => ThemeHelper()._getThemeData('lightCode');
 
 @Riverpod(keepAlive: true)
 class ThemeHelper extends _$ThemeHelper {

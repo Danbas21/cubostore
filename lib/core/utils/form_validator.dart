@@ -69,6 +69,8 @@ class FormStateNotifier extends _$FormStateNotifier {
 
 // Widget que usa el formulario
 class LoginForm extends ConsumerWidget {
+  const LoginForm({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formState = ref.watch(formStateNotifierProvider);
@@ -99,7 +101,7 @@ class LoginForm extends ConsumerWidget {
                     // Procesar formulario
                   }
                 : null,
-            child: Text('Login'),
+            child: const Text('Login'),
           ),
         ],
       ),

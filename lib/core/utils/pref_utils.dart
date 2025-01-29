@@ -15,7 +15,7 @@ class ThemePreferencesNotifier extends _$ThemePreferencesNotifier {
   Future<String> build() async {
     final prefs = await ref.watch(sharedPreferencesProvider.future);
     // Cambiamos el valor por defecto a 'lightCode'
-    return prefs.getString('themeData') ?? 'lightCode';
+    return prefs.getString('themeData') ?? ' lightCode';
   }
 
   Future<void> setTheme(String theme) async {
