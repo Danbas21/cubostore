@@ -190,12 +190,12 @@ class AppDecoration {
         color: theme.colorScheme.primary,
         width: 0.75.h,
       ));
-  static BoxDecoration get column1 => BoxDecoration(
+  static BoxDecoration get column1 => const BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
             ImageConstant.imgRectangle1025,
-            fit: BoxFit.fill,
           ),
+          fit: BoxFit.fill,
         ),
       );
   static BoxDecoration get column18 => BoxDecoration(

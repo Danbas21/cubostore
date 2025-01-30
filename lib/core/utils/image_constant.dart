@@ -3,7 +3,7 @@ class ImageConstant {
 
   // Previous constants from different documents
   static const String imgLogo = '$imagePath/img_logo.png';
-  static const String imaRectangle1025 = '$imagePath/ima_rectangle_1025.png';
+  static const String imgRectangle1025 = '$imagePath/ima_rectangle_1025.png';
   static const String imgCheckmarkWhiteA700 =
       '$imagePath/img_checkmark_white_a700.png';
   static const String imgSignal = '$imagePath/img_signal.svg';
