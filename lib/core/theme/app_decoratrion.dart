@@ -37,11 +37,11 @@ class AppDecoration {
 // Neutral decorations
   static BoxDecoration get neutral100 => BoxDecoration(
         color: appTheme.gray50,
-        image: DecorationImage(
+        image: const DecorationImage(
           image: AssetImage(
             ImageConstant.imgImage318,
-            fit: BoxFit.fill,
           ),
+          fit: BoxFit.fill,
         ),
       );
 
@@ -198,21 +198,21 @@ class AppDecoration {
           fit: BoxFit.fill,
         ),
       );
-  static BoxDecoration get column18 => BoxDecoration(
+  static BoxDecoration get column18 => const BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
             ImageConstant.imgShap,
-            fit: BoxFit.fill,
           ),
+          fit: BoxFit.fill,
         ),
       );
 // Stack decorations
-  static BoxDecoration get stack19 => BoxDecoration(
+  static BoxDecoration get stack19 => const BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
             ImageConstant.imgShap335x375,
-            fit: BoxFit.fill,
           ),
+          fit: BoxFit.fill,
         ),
       );
 }

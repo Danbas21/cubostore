@@ -1,4 +1,7 @@
 {
     "cmake.ignoreCMakeListsMissing": true,
-    "svg.preview.background": "black"
+    "svg.preview.background": "black",
+    "cSpell.words": [
+        "Shap"
+    ]
 }

@@ -81,4 +81,8 @@ class ImageConstant {
 
   // Frame and additional icons
   static const String imgFrame = '$imagePath/img_frame.svg';
+
+  static const String imgImage318 = '$imagePath/img_image_318.png';
+  static const String imgShap = '$imagePath/img_shap.png';
+  static const String imgShap335x375 = '$imagePath/img_shap_335x375.png';
 }

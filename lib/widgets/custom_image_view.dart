@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
 
 extension ImageTypeExtension on String {
   ImageType get imageType {
-   if (this.startsWith('http') || this.startsWith('https')) {
+    if (startsWith('http') || startsWith('https')) {
       return ImageType.network;
-    } else if (this.endsWith('.svg')) {
+    } else if (endsWith('.svg')) {
       return ImageType.svg;
-    } else if (this.endsWith('.png')) {
+    } else if (startsWith('file://')) {
       return ImageType.png;
     } else {
       return ImageType.file;
     }
   }
 }
-
 
 enum ImageType { svg, png, network, file, unknown }
 
@@ -85,20 +86,64 @@ class CustomImageView extends StatelessWidget {
   }
 
   _buildImageView() {
-if (imagePath != null) {
-  switch (imagePath!.imageType) {
-    case ImageType.svg:return Container (
-height: height,
-width: width,
-child: SvgPicture.asset(
-imagePath!,
-width: width,
-height: height,
-fit: fit ?? BoxFit.contain,
-colorFilter: this.color != null
-? ColorFilter.mode(this.color!, BlendMode.srcIn) : null,
-    )
-  }
-}
+    if (imagePath != null) {
+      switch (imagePath!.imageType) {
+        case ImageType.svg:
+          return SizedBox(
+            width: width,
+            height: height,
+            child: SvgPicture.asset(
+              imagePath!,
+              width: width,
+              height: height,
+              fit: fit ?? BoxFit.contain,
+              colorFilter: color != null
+                  ? ColorFilter.mode(color!, BlendMode.srcIn)
+                  : null,
+            ),
+          );
+        case ImageType.file:
+          return Image.file(
+            File(imagePath!),
+            width: width,
+            height: height,
+            fit: fit ?? BoxFit.contain,
+            color: color,
+          );
+        case ImageType.network:
+          return CachedNetworkImage(
+            imageUrl: imagePath!,
+            width: width,
+            height: height,
+            fit: fit ?? BoxFit.contain,
+            color: color,
+            placeholder: (context, url) => SizedBox(
+              width: 30,
+              height: 30,
+              child: LinearProgressIndicator(
+                color: Colors.grey.shade200,
+                backgroundColor: Colors.grey.shade100,
+              ),
+            ),
+            errorWidget: (context, url, error) => Image.asset(
+              placeHolder,
+              width: width,
+              height: height,
+              fit: fit ?? BoxFit.contain,
+              color: color,
+            ),
+          );
+        case ImageType.png:
+        default:
+          Image.asset(
+            imagePath!,
+            width: width,
+            height: height,
+            fit: fit ?? BoxFit.contain,
+            color: color,
+          );
+      }
+      () {};
+    }
   }
 }

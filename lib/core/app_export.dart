@@ -7,3 +7,4 @@ export '../core/utils/image_constant.dart';
 export '../core/theme/app_decoratrion.dart';
 export '../core/theme/custom_button_style.dart';
 export '../core/theme/custom_text_style.dart';
+export '../widgets/custom_image_view.dart';
